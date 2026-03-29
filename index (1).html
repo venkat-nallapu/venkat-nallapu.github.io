@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Venkat Nallapu — ML Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ── TOKENS ───────────────────────────────────── */
+    :root {
+      --bg:       #09090f;
+      --surface:  #101018;
+      --border:   rgba(255,255,255,0.07);
+      --text:     #e8e8f0;
+      --muted:    #6b6b82;
+      --cyan:     #00d4ff;
+      --navy:     #1a2fff;
+      --accent2:  #7c3aed;
+      --glow:     rgba(0,212,255,0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    /* ── CANVAS WAVE BG ───────────────────────────── */
+    #wave-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+
+    /* ── NAV ──────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: rgba(9,9,15,0.7);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.4rem;
+    }
+
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── SECTIONS ─────────────────────────────────── */
+    section {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── HERO ─────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 3rem;
+      max-width: 900px;
+    }
+
+    .hero-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 1.6rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.2s forwards;
+    }
+
+    .hero-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3.2rem, 8vw, 7rem);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: #fff;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.35s forwards;
+    }
+
+    .hero-name span {
+      background: linear-gradient(110deg, var(--cyan) 0%, var(--navy) 60%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      margin-top: 1.4rem;
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 520px;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.5s forwards;
+    }
+
+    .hero-sub strong { color: var(--text); font-weight: 400; }
+
+    .hero-cta {
+      margin-top: 2.8rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.65s forwards;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.6rem;
+      border-radius: 4px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--cyan);
+      color: #000;
+      font-weight: 400;
+    }
+    .btn-primary:hover {
+      background: #fff;
+      box-shadow: 0 0 24px var(--glow);
+    }
+
+    .btn-ghost {
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: transparent;
+    }
+    .btn-ghost:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* ── DIVIDER ──────────────────────────────────── */
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 3rem;
+    }
+
+    .section-label::before {
+      content: '//';
+      margin-right: 0.5em;
+      opacity: 0.5;
+    }
+
+    /* ── EXPERTISE ────────────────────────────────── */
+    #expertise {
+      padding: 7rem 3rem;
+    }
+
+    .expertise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1px;
+      border: 1px solid var(--border);
+      background: var(--border);
+    }
+
+    .skill-card {
+      background: var(--surface);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.25s;
+    }
+
+    .skill-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,212,255,0.05) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .skill-card:hover { background: #12121e; }
+    .skill-card:hover::before { opacity: 1; }
+
+    .skill-icon {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .skill-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.6rem;
+      color: #fff;
+    }
+
+    .skill-body {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 1rem;
+    }
+
+    .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── PROJECTS ─────────────────────────────────── */
+    #projects {
+      padding: 7rem 3rem;
+    }
+
+    .projects-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      border: 1px solid var(--border);
+      background: var(--border);
+    }
+
+    .project-row {
+      background: var(--surface);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      gap: 2rem;
+      padding: 2rem 2.4rem;
+      transition: background 0.2s;
+      cursor: default;
+    }
+
+    .project-row:hover { background: #12121e; }
+
+    .project-number {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-desc {
+      font-size: 0.83rem;
+      color: var(--muted);
+      max-width: 540px;
+      line-height: 1.7;
+    }
+
+    .project-meta {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .project-status {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      padding: 0.25rem 0.7rem;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .status-active {
+      background: rgba(0,212,255,0.1);
+      color: var(--cyan);
+      border: 1px solid rgba(0,212,255,0.25);
+    }
+
+    .status-wip {
+      background: rgba(124,58,237,0.1);
+      color: #a78bfa;
+      border: 1px solid rgba(124,58,237,0.25);
+    }
+
+    .project-stack {
+      margin-top: 0.8rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      justify-content: flex-end;
+    }
+
+    /* ── ABOUT / HISTORY ──────────────────────────── */
+    #about {
+      padding: 7rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .about-text p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.9;
+      margin-bottom: 1rem;
+    }
+
+    .about-text p strong { color: var(--text); font-weight: 400; }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 1.2rem;
+      padding: 1.4rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .timeline-item:last-child { border-bottom: none; }
+
+    .tl-year {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--cyan);
+      padding-top: 0.15rem;
+      letter-spacing: 0.08em;
+    }
+
+    .tl-role {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .tl-org {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+    }
+
+    /* ── CONTACT ──────────────────────────────────── */
+    #contact {
+      padding: 7rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .contact-heading {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1.1;
+      color: #fff;
+    }
+
+    .contact-heading span {
+      background: linear-gradient(110deg, var(--cyan), var(--navy));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem 1.4rem;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .contact-link:hover {
+      border-color: var(--cyan);
+      background: rgba(0,212,255,0.04);
+    }
+
+    .cl-icon {
+      font-size: 1.1rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .cl-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+
+    .contact-link:hover .cl-label { color: var(--cyan); }
+
+    .cl-value {
+      margin-left: auto;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    /* ── FOOTER ───────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    footer p {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    /* ── ANIMATIONS ───────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── MOBILE ───────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.4rem; }
+      .nav-links { gap: 1.2rem; }
+
+      #hero { padding: 0 1.4rem; }
+      #expertise, #projects, #about, #contact { padding: 5rem 1.4rem; }
+
+      #about, #contact { grid-template-columns: 1fr; gap: 2.5rem; }
+
+      .project-row {
+        grid-template-columns: 1fr;
+      }
+      .project-meta { text-align: left; }
+      .project-stack { justify-content: flex-start; }
+
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Animated wave background -->
+<canvas id="wave-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">VN</div>
+  <ul class="nav-links">
+    <li><a href="#expertise">Expertise</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <p class="hero-tag">ML Engineer · IIT (BHU) Varanasi · 2027</p>
+  <h1 class="hero-name">Venkat<br /><span>Nallapu</span></h1>
+  <p class="hero-sub">
+    Building <strong>ML systems for physical-world domains</strong> —
+    from geotechnical intelligence to computer vision pipelines.
+    Founder of <strong>axialnet</strong>.
+  </p>
+  <div class="hero-cta">
+    <a href="#projects" class="btn btn-primary">View Projects</a>
+    <a href="#contact" class="btn btn-ghost">Get in touch</a>
+    <a href="https://github.com/venkat-nallapu" target="_blank" class="btn btn-ghost">
+      GitHub ↗
+    </a>
+  </div>
+</section>
+
+<!-- EXPERTISE -->
+<section id="expertise">
+  <p class="section-label reveal">Expertise</p>
+  <div class="expertise-grid">
+    <div class="skill-card reveal">
+      <div class="skill-icon">🧠</div>
+      <div class="skill-title">ML Engineering</div>
+      <div class="skill-body">Fine-tuning LLMs with QLoRA, RAG pipelines, transformer architectures, and model serving at scale.</div>
+      <div class="skill-tags">
+        <span class="tag">PyTorch</span>
+        <span class="tag">HuggingFace</span>
+        <span class="tag">vLLM</span>
+        <span class="tag">Ollama</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-icon">👁️</div>
+      <div class="skill-title">Computer Vision</div>
+      <div class="skill-body">Real-time object detection, lane monitoring, and spatial analysis for infrastructure and safety systems.</div>
+      <div class="skill-tags">
+        <span class="tag">YOLO</span>
+        <span class="tag">OpenCV</span>
+        <span class="tag">Python</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-icon">⛏️</div>
+      <div class="skill-title">Domain AI</div>
+      <div class="skill-body">Applying AI to physical-world domains — geotechnical engineering, boring log summarization, Indian Standards.</div>
+      <div class="skill-tags">
+        <span class="tag">Geotechnical</span>
+        <span class="tag">IS Codes</span>
+        <span class="tag">Civil</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-icon">🔧</div>
+      <div class="skill-title">MLOps & Infra</div>
+      <div class="skill-body">CI/CD pipelines, LLMOps with LangSmith/Langfuse, cloud GPU workflows, and full-stack deployment.</div>
+      <div class="skill-tags">
+        <span class="tag">LangChain</span>
+        <span class="tag">Vercel</span>
+        <span class="tag">GitHub Actions</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <p class="section-label reveal">Projects</p>
+  <div class="projects-list">
+
+    <div class="project-row reveal">
+      <div>
+        <div class="project-number">01</div>
+        <div class="project-name">GeoLLM</div>
+        <div class="project-desc">
+          Fine-tuned Mistral 7B on geotechnical boring logs using QLoRA on A100 GPUs.
+          Generates structured summaries compliant with Indian Standards (IS codes).
+          Synthetic data augmentation pipeline for low-resource domain adaptation.
+        </div>
+        <div class="skill-tags" style="margin-top:1rem">
+          <span class="tag">Mistral 7B</span><span class="tag">QLoRA</span>
+          <span class="tag">HuggingFace</span><span class="tag">A100</span><span class="tag">IS Codes</span>
+        </div>
+      </div>
+      <div class="project-meta">
+        <span class="project-status status-active">Active</span>
+        <div class="project-stack"></div>
+      </div>
+    </div>
+
+    <div class="project-row reveal">
+      <div>
+        <div class="project-number">02</div>
+        <div class="project-name">LaneDisciplineNet</div>
+        <div class="project-desc">
+          Real-time lane monitoring and vehicle discipline detection system using computer vision.
+          Deployed on edge hardware for highway infrastructure safety analysis.
+        </div>
+        <div class="skill-tags" style="margin-top:1rem">
+          <span class="tag">YOLO</span><span class="tag">OpenCV</span>
+          <span class="tag">Python</span><span class="tag">Edge Deploy</span>
+        </div>
+      </div>
+      <div class="project-meta">
+        <span class="project-status status-active">Deployed</span>
+      </div>
+    </div>
+
+    <div class="project-row reveal">
+      <div>
+        <div class="project-number">03</div>
+        <div class="project-name">axialnet</div>
+        <div class="project-desc">
+          Startup focused on ML systems for physical-world domains.
+          Building branding, infra, and foundational tooling — axialnet.in.
+        </div>
+        <div class="skill-tags" style="margin-top:1rem">
+          <span class="tag">Next.js</span><span class="tag">Vercel</span>
+          <span class="tag">GoDaddy DNS</span><span class="tag">GitHub Orgs</span>
+        </div>
+      </div>
+      <div class="project-meta">
+        <span class="project-status status-wip">Building</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-text">
+    <p class="section-label reveal">About</p>
+    <p class="reveal">
+      I'm a <strong>3rd year Civil Engineering student at IIT (BHU) Varanasi</strong>,
+      self-directing a transition into ML and AI engineering.
+      My edge: I understand physical-world systems deeply — soil, structures, infrastructure —
+      and I build AI that speaks that language.
+    </p>
+    <p class="reveal">
+      Currently fine-tuning domain-specific LLMs, building computer vision systems,
+      and shipping axialnet — a startup at the intersection of ML and the physical world.
+      Placements in December 2026.
+    </p>
+    <p class="reveal">
+      <strong>IIT (BHU) Varanasi</strong> · B.Tech Civil Engineering · 2023–2027
+    </p>
+  </div>
+
+  <div>
+    <p class="section-label reveal" style="margin-bottom:1.5rem">Timeline</p>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="tl-year">2027</div>
+        <div>
+          <div class="tl-role">ML Engineer (Target)</div>
+          <div class="tl-org">Campus Placements — Dec 2026</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="tl-year">2025–</div>
+        <div>
+          <div class="tl-role">Founder</div>
+          <div class="tl-org">axialnet · axialnet.in</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="tl-year">2025</div>
+        <div>
+          <div class="tl-role">GeoLLM Research</div>
+          <div class="tl-org">AiKosh · A100 GPUs · QLoRA</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="tl-year">2024</div>
+        <div>
+          <div class="tl-role">LaneDisciplineNet</div>
+          <div class="tl-org">Computer Vision · Edge Deploy</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="tl-year">2023</div>
+        <div>
+          <div class="tl-role">B.Tech Civil Engineering</div>
+          <div class="tl-org">IIT (BHU) Varanasi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div>
+    <p class="section-label reveal">Contact</p>
+    <h2 class="contact-heading reveal">
+      Let's build<br /><span>something real.</span>
+    </h2>
+  </div>
+  <div class="contact-links reveal">
+    <a href="https://github.com/venkat-nallapu" target="_blank" class="contact-link">
+      <span class="cl-icon">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+      </span>
+      <span class="cl-label">GitHub</span>
+      <span class="cl-value">venkat-nallapu</span>
+    </a>
+    <a href="https://www.linkedin.com/in/venkat-nallapu" target="_blank" class="contact-link">
+      <span class="cl-icon">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.59 0 4.25 2.36 4.25 5.44v6.3zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zm1.79 13.02H3.55V9h3.58v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/></svg>
+      </span>
+      <span class="cl-label">LinkedIn</span>
+      <span class="cl-value">venkat-nallapu</span>
+    </a>
+    <a href="mailto:venkat@axialnet.in" class="contact-link">
+      <span class="cl-icon">✉</span>
+      <span class="cl-label">Email</span>
+      <span class="cl-value">venkat@axialnet.in</span>
+    </a>
+    <a href="https://axialnet.in" target="_blank" class="contact-link">
+      <span class="cl-icon">◈</span>
+      <span class="cl-label">Startup</span>
+      <span class="cl-value">axialnet.in</span>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Venkat Nallapu · IIT (BHU) Varanasi</p>
+  <p>venkat-nallapu.github.io</p>
+</footer>
+
+<script>
+  /* ── CANVAS WAVE ─────────────────────────────── */
+  const canvas = document.getElementById('wave-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, t = 0;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function drawWave() {
+    ctx.clearRect(0, 0, W, H);
+    const lines = 55;
+    for (let i = 0; i < lines; i++) {
+      const prog = i / lines;
+      const alpha = Math.sin(prog * Math.PI) * 0.55;
+
+      // cyan → navy → violet gradient across lines
+      let r, g, b;
+      if (prog < 0.5) {
+        const p = prog * 2;
+        r = Math.round(0   + p * 26);
+        g = Math.round(212 + p * (47 - 212));
+        b = Math.round(255 + p * (255 - 255));
+      } else {
+        const p = (prog - 0.5) * 2;
+        r = Math.round(26  + p * (124 - 26));
+        g = Math.round(47  + p * (58  - 47));
+        b = Math.round(255 + p * (237 - 255));
+      }
+
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+      ctx.lineWidth = 0.8;
+
+      for (let x = 0; x <= W; x += 2) {
+        const xn = x / W;
+        const y =
+          H * 0.55 +
+          Math.sin(xn * Math.PI * 2.5 + t + prog * 1.2) * (H * 0.18) +
+          Math.sin(xn * Math.PI * 1.3 + t * 0.7 + prog * 2.4) * (H * 0.09) +
+          (prog - 0.5) * H * 0.35;
+
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    t += 0.006;
+    requestAnimationFrame(drawWave);
+  }
+  drawWave();
+
+  /* ── SCROLL REVEAL ───────────────────────────── */
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, idx) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), idx * 60);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => io.observe(el));
+</script>
+</body>
+</html>
